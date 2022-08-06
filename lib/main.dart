@@ -1,7 +1,16 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -33,7 +42,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _counter = 0;
   int _addNum = 0;
-  final List<int> _history = [];
+  List<dynamic> _history = [];
+
+  @override
+  void initState() {
+    super.initState();
+    featchHistory();
+  }
+
+  Future<void> featchHistory() async {
+    await FirebaseFirestore.instance
+        .doc('history/sample_data')
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      var amt = snapshot.get('amt');
+      debugPrint(amt.toString());
+      setState(() {
+        _history = amt;
+      });
+      _refreshCounter();
+    });
+  }
 
   void _refreshCounter() {
     setState(() {
@@ -45,6 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ? _history.reduce((value, element) => value + element)
           : 0;
       _textEditingController.clear();
+      FirebaseFirestore.instance
+          .doc('history/sample_data')
+          .set({'amt': _history});
     });
   }
 
@@ -52,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final FocusNode focusNode = FocusNode();
 
-    final Size size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     final EdgeInsets padding = MediaQuery.of(context).padding;
     double maxHeight = size.height - padding.top - padding.bottom - 50;
 
@@ -111,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(
                       height: historyHeaderAreaHeight,
                       width: size.width,
-                      child: const Text('履歴'),
+                      child: const Text('一覧'),
                     ),
                     SizedBox(
                       height: historyAreaHeight - historyHeaderAreaHeight,
