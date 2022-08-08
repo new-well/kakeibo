@@ -40,24 +40,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _counter = 0;
   int _addNum = 0;
-  List<dynamic> _history = [];
+  List<dynamic> _histories = [];
 
   final _amoutFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    featchHistory();
+    featchHistories();
   }
 
-  Future<void> featchHistory() async {
+  Future<void> featchHistories() async {
     await FirebaseFirestore.instance
         .doc('history/sample_data')
         .get()
         .then((DocumentSnapshot snapshot) {
       var amt = snapshot.get('amt');
       setState(() {
-        _history = amt;
+        _histories = amt;
       });
       _refreshCounter();
     });
@@ -66,15 +66,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void _refreshCounter() {
     setState(() {
       if (_addNum != 0) {
-        _history.add(_addNum);
+        _histories.add(_addNum);
         _addNum = 0;
       }
-      _counter = _history.isNotEmpty
-          ? _history.reduce((value, element) => value + element)
+      _counter = _histories.isNotEmpty
+          ? _histories.reduce((value, element) => value + element)
           : 0;
       FirebaseFirestore.instance
           .doc('history/sample_data')
-          .set({'amt': _history});
+          .set({'amt': _histories});
     });
   }
 
@@ -128,18 +128,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: size.width,
                   child: Scrollbar(
                     child: ListView.builder(
-                      itemCount: _history.length,
+                      itemCount: _histories.length,
                       itemBuilder: (context, index) {
                         return Dismissible(
                           key: UniqueKey(),
                           child: Card(
                             child: ListTile(
-                              title: Text('${_history[index]}'),
+                              title: Text('${_histories[index]}'),
                             ),
                           ),
                           onDismissed: (direction) {
                             setState(() {
-                              _history.removeAt(index);
+                              _histories.removeAt(index);
                             });
                             _refreshCounter();
                           },
