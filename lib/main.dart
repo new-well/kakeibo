@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:kakeibo/total_amount_displayer.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'history_input_dialog.dart';
+import 'history_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,13 +39,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _textEditingController = TextEditingController();
-
   int _counter = 0;
   int _addNum = 0;
   List<dynamic> _histories = [];
-
-  final _amoutFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -64,18 +63,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _refreshCounter() {
-    setState(() {
-      if (_addNum != 0) {
+    if (_addNum != 0) {
+      setState(() {
         _histories.add(_addNum);
         _addNum = 0;
-      }
-      _counter = _histories.isNotEmpty
-          ? _histories.reduce((value, element) => value + element)
-          : 0;
+        _counter = _histories.isNotEmpty
+            ? _histories.reduce((value, element) => value + element)
+            : 0;
+      });
       FirebaseFirestore.instance
           .doc('history/sample_data')
           .set({'amt': _histories});
-    });
+    }
   }
 
   @override
@@ -84,127 +83,37 @@ class _MyHomePageState extends State<MyHomePage> {
     final EdgeInsets padding = MediaQuery.of(context).padding;
     double maxHeight = size.height - padding.top - padding.bottom - 50;
 
-    // 計算結果エリアの高さ
     final double resultAreaHeight = maxHeight * (20 / 100);
-    // 履歴表示エリアの高さ
     final double historyAreaHeight = maxHeight * (80 / 100);
-    // テキスト履歴の文字エリアの高さ
-    const double historyHeaderAreaHeight = 30;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Column(
-        children: <Widget>[
-          Container(
-            width: size.width,
-            height: resultAreaHeight,
-            padding: const EdgeInsets.only(right: 20, left: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const Text('現在の利用金額'),
-                Text(
-                  '$_counter',
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-              ],
+      body: Container(
+        padding: const EdgeInsets.only(right: 20, left: 20),
+        child: Column(
+          children: <Widget>[
+            TotalAmountDisplayer(
+              num: _counter,
+              boxHeight: resultAreaHeight,
             ),
-          ),
-          Container(
-            width: size.width,
-            height: historyAreaHeight,
-            padding: const EdgeInsets.only(right: 20, left: 20),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: historyHeaderAreaHeight,
-                  width: size.width,
-                  child: const Text('一覧'),
-                ),
-                SizedBox(
-                  height: historyAreaHeight - historyHeaderAreaHeight,
-                  width: size.width,
-                  child: Scrollbar(
-                    child: ListView.builder(
-                      itemCount: _histories.length,
-                      itemBuilder: (context, index) {
-                        return Dismissible(
-                          key: UniqueKey(),
-                          child: Card(
-                            child: ListTile(
-                              title: Text('${_histories[index]}'),
-                            ),
-                          ),
-                          onDismissed: (direction) {
-                            setState(() {
-                              _histories.removeAt(index);
-                            });
-                            _refreshCounter();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
+            HistoryList(
+              histories: _histories,
+              scrollAreaHeight: historyAreaHeight,
+              dismissibleFunc: _refreshCounter,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text('利用した金額を入力'),
-            content: Form(
-              key: _amoutFormKey,
-              child: TextFormField(
-                controller: _textEditingController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '金額を入力',
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _addNum = value == "" ? 0 : int.parse(value);
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '金額を入力してください。';
-                  }
-                  return null;
-                },
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _addNum = 0;
-                  });
-                  _textEditingController.clear();
-                  Navigator.pop(context);
-                },
-                child: const Text('キャンセル'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (_amoutFormKey.currentState!.validate()) {
-                    _refreshCounter();
-                    _textEditingController.clear();
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('追加'),
-              ),
-            ],
-          ),
-        ),
+        onPressed: () async {
+          _addNum = await showDialog(
+            context: context,
+            builder: (BuildContext context) => const HistoryInputDialog(),
+          );
+          _refreshCounter();
+        },
         child: const Icon(Icons.add),
       ),
     );
