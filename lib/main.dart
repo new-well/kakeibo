@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firebase_options.dart';
+import 'history.dart';
 import 'total_amount_displayer.dart';
 import 'history_input_dialog.dart';
 import 'history_list.dart';
@@ -40,7 +41,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  int _addNum = 0;
   List<dynamic> _histories = [];
 
   @override
@@ -58,20 +58,26 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _histories = amt;
       });
-      _refreshCounter();
     });
+    _refreshCounter();
+  }
+
+  void _addCounter(History history) {
+    setState(() {
+      _histories.add(history.amount);
+      _counter = _histories.reduce((value, element) => value + element);
+    });
+    FirebaseFirestore.instance
+        .doc('history/sample_data')
+        .set({'amt': _histories});
   }
 
   void _refreshCounter() {
-    if (_addNum != 0) {
-      setState(() {
-        _histories.add(_addNum);
-        _addNum = 0;
-      });
-    }
-    _counter = _histories.isNotEmpty
-        ? _histories.reduce((value, element) => value + element)
-        : 0;
+    setState(() {
+      _counter = _histories.isNotEmpty
+          ? _histories.reduce((value, element) => value + element)
+          : 0;
+    });
     FirebaseFirestore.instance
         .doc('history/sample_data')
         .set({'amt': _histories});
@@ -108,11 +114,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          _addNum = await showDialog(
+          History? history = await showDialog(
             context: context,
             builder: (BuildContext context) => const HistoryInputDialog(),
           );
-          _refreshCounter();
+          if (history != null) _addCounter(history);
         },
         child: const Icon(Icons.add),
       ),

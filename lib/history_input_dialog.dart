@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'history.dart';
+
 class HistoryInputDialog extends StatefulWidget {
   const HistoryInputDialog({Key? key}) : super(key: key);
 
@@ -33,9 +35,8 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
             labelText: '金額を入力',
           ),
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return '金額を入力してください。';
-            }
+            if (value == null || value.isEmpty) return '金額を入力してください。';
+            if (int.parse(value) == 0) return '0円の金額は入力できません。';
             return null;
           },
         ),
@@ -43,7 +44,7 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context, 0);
+            Navigator.pop(context);
           },
           child: const Text('キャンセル'),
         ),
@@ -51,7 +52,7 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
           onPressed: () {
             if (_amoutFormKey.currentState!.validate()) {
               int amount = int.parse(_textEditingController.text);
-              Navigator.pop<int>(context, amount);
+              Navigator.pop<History>(context, History(amount));
             }
           },
           child: const Text('追加'),
