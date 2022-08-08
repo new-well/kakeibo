@@ -67,14 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _histories.add(_addNum);
         _addNum = 0;
-        _counter = _histories.isNotEmpty
-            ? _histories.reduce((value, element) => value + element)
-            : 0;
       });
-      FirebaseFirestore.instance
-          .doc('history/sample_data')
-          .set({'amt': _histories});
     }
+    _counter = _histories.isNotEmpty
+        ? _histories.reduce((value, element) => value + element)
+        : 0;
+    FirebaseFirestore.instance
+        .doc('history/sample_data')
+        .set({'amt': _histories});
   }
 
   @override
