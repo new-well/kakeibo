@@ -40,7 +40,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   List<dynamic> _histories = [];
 
   @override
@@ -59,24 +58,20 @@ class _MyHomePageState extends State<MyHomePage> {
         _histories = amt;
       });
     });
-    _refreshCounter();
   }
 
-  void _addCounter(History history) {
+  void _addHistory(History history) {
     setState(() {
       _histories.add(history.amount);
-      _counter = _histories.reduce((value, element) => value + element);
     });
     FirebaseFirestore.instance
         .doc('history/sample_data')
         .set({'amt': _histories});
   }
 
-  void _refreshCounter() {
+  void _removeHistory(int index) {
     setState(() {
-      _counter = _histories.isNotEmpty
-          ? _histories.reduce((value, element) => value + element)
-          : 0;
+      _histories.removeAt(index);
     });
     FirebaseFirestore.instance
         .doc('history/sample_data')
@@ -101,13 +96,15 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: <Widget>[
             TotalAmountDisplayer(
-              num: _counter,
+              num: _histories.isNotEmpty
+                  ? _histories.reduce((value, element) => value + element)
+                  : 0,
               boxHeight: resultAreaHeight,
             ),
             HistoryList(
               histories: _histories,
               scrollAreaHeight: historyAreaHeight,
-              dismissibleFunc: _refreshCounter,
+              dismissibleFunc: _removeHistory,
             ),
           ],
         ),
@@ -118,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
             context: context,
             builder: (BuildContext context) => const HistoryInputDialog(),
           );
-          if (history != null) _addCounter(history);
+          if (history != null) _addHistory(history);
         },
         child: const Icon(Icons.add),
       ),

@@ -10,7 +10,7 @@ class HistoryList extends StatelessWidget {
 
   final List histories;
   final double scrollAreaHeight;
-  final dynamic dismissibleFunc;
+  final Function dismissibleFunc;
   static const double historyHeaderAreaHeight = 30;
 
   @override
@@ -35,8 +35,7 @@ class HistoryList extends StatelessWidget {
                     ),
                   ),
                   onDismissed: (direction) {
-                    histories.removeAt(index);
-                    dismissibleFunc();
+                    dismissibleFunc(index);
                   },
                 );
               },
