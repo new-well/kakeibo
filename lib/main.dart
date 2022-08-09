@@ -64,22 +64,16 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _addHistory(History history) {
-    setState(() {
-      _histories.add(history);
-    });
-    FirebaseFirestore.instance
-        .doc('history/sample_wallet')
-        .set({'amt': _histories});
+  void _addHistory(History history) async {
+    await collectionRef.doc().set(history);
+    featchHistories();
   }
 
-  void _removeHistory(int index) {
-    setState(() {
-      _histories.removeAt(index);
-    });
-    FirebaseFirestore.instance
-        .doc('history/sample_wallet')
-        .set({'amt': _histories});
+  void _removeHistory(int index) async {
+    // todo
+    //   FirebaseFirestore.instance
+    //       .doc('history/sample_wallet')
+    //       .set({'amt': _histories});
   }
 
   int _calculateHistory() {
