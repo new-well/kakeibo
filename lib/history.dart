@@ -1,7 +1,26 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class History {
-  final int _amount;
+  final String? category;
+  final int? amount;
 
-  History(this._amount);
+  History({this.category, this.amount});
 
-  int get amount => _amount;
+  factory History.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
+    final data = snapshot.data();
+    return History(
+      category: data?['category'],
+      amount: data?['amount'],
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      if (category != null) "category": category,
+      if (amount != null) "amount": amount,
+    };
+  }
 }

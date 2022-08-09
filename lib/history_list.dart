@@ -31,7 +31,8 @@ class HistoryList extends StatelessWidget {
                   key: UniqueKey(),
                   child: Card(
                     child: ListTile(
-                      title: Text('${histories[index]}'),
+                      title: Text(
+                          '${histories[index].category}, ${histories[index].amount}'),
                     ),
                   ),
                   onDismissed: (direction) {

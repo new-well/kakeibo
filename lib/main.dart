@@ -40,7 +40,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<dynamic> _histories = [];
+  List _histories = [];
+  final collectionRef =
+      FirebaseFirestore.instance.collection('history').withConverter(
+            fromFirestore: History.fromFirestore,
+            toFirestore: (History history, _) => history.toFirestore(),
+          );
 
   @override
   void initState() {
@@ -49,23 +54,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> featchHistories() async {
-    await FirebaseFirestore.instance
-        .doc('history/sample_data')
-        .get()
-        .then((DocumentSnapshot snapshot) {
-      var amt = snapshot.get('amt');
-      setState(() {
-        _histories = amt;
-      });
+    final querySnapshot = await collectionRef.get();
+    setState(() {
+      _histories = querySnapshot.docs
+          .map(
+            (doc) => doc.data(),
+          )
+          .toList();
     });
   }
 
   void _addHistory(History history) {
     setState(() {
-      _histories.add(history.amount);
+      _histories.add(history);
     });
     FirebaseFirestore.instance
-        .doc('history/sample_data')
+        .doc('history/sample_wallet')
         .set({'amt': _histories});
   }
 
@@ -74,8 +78,18 @@ class _MyHomePageState extends State<MyHomePage> {
       _histories.removeAt(index);
     });
     FirebaseFirestore.instance
-        .doc('history/sample_data')
+        .doc('history/sample_wallet')
         .set({'amt': _histories});
+  }
+
+  int _calculateHistory() {
+    int totalAmount = 0;
+    if (_histories.isNotEmpty) {
+      for (History history in _histories) {
+        totalAmount += history.amount!;
+      }
+    }
+    return totalAmount;
   }
 
   @override
@@ -96,9 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: <Widget>[
             TotalAmountDisplayer(
-              num: _histories.isNotEmpty
-                  ? _histories.reduce((value, element) => value + element)
-                  : 0,
+              num: _calculateHistory(),
               boxHeight: resultAreaHeight,
             ),
             HistoryList(

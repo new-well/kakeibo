@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kakeibo/dropdown_item.dart';
 
+import 'package:kakeibo/dropdown_item.dart';
 import 'package:kakeibo/history.dart';
 
 class HistoryInputDialog extends StatefulWidget {
@@ -13,13 +13,13 @@ class HistoryInputDialog extends StatefulWidget {
 
 class _HistoryInputDialogState extends State<HistoryInputDialog> {
   String? dropdownValue;
-  final TextEditingController _textEditingController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  final _amountEditingController = TextEditingController();
+  final _focusNode = FocusNode();
   final _amoutFormKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _textEditingController.dispose();
+    _amountEditingController.dispose();
     super.dispose();
   }
 
@@ -59,7 +59,7 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                   },
                 ),
                 TextFormField(
-                  controller: _textEditingController,
+                  controller: _amountEditingController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
@@ -85,8 +85,13 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
             TextButton(
               onPressed: () {
                 if (_amoutFormKey.currentState!.validate()) {
-                  int amount = int.parse(_textEditingController.text);
-                  Navigator.pop<History>(context, History(amount));
+                  int amount = int.parse(_amountEditingController.text);
+                  Navigator.pop<History>(
+                      context,
+                      History(
+                        category: dropdownValue!,
+                        amount: amount,
+                      ));
                 }
               },
               child: const Text('追加'),
