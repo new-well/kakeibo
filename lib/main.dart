@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'firebase_options.dart';
-import 'history.dart';
-import 'total_amount_displayer.dart';
-import 'history_input_dialog.dart';
-import 'history_list.dart';
+import 'package:kakeibo/firebase_options.dart';
+import 'package:kakeibo/history.dart';
+import 'package:kakeibo/history_input_dialog.dart';
+import 'package:kakeibo/history_list.dart';
+import 'package:kakeibo/total_amount_displayer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
