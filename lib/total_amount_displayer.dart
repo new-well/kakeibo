@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TotalAmountDisplayer extends StatelessWidget {
   const TotalAmountDisplayer(
@@ -10,6 +11,7 @@ class TotalAmountDisplayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var formatter = NumberFormat("#,###");
     return SizedBox(
       height: boxHeight,
       child: Column(
@@ -17,7 +19,7 @@ class TotalAmountDisplayer extends StatelessWidget {
         children: <Widget>[
           const Text('現在の利用金額'),
           Text(
-            '$num',
+            '¥${formatter.format(num)}',
             style: Theme.of(context).textTheme.headline4,
           ),
         ],

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import 'package:kakeibo/history_category.dart';
 
 class HistoryList extends StatelessWidget {
   const HistoryList(
@@ -15,6 +18,7 @@ class HistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var formatter = NumberFormat("#,###");
     return Column(
       children: [
         const SizedBox(
@@ -31,9 +35,12 @@ class HistoryList extends StatelessWidget {
                   key: UniqueKey(),
                   child: Card(
                     child: ListTile(
-                      title: Text(
-                          '${histories[index].category}, ${histories[index].name}'),
-                      trailing: Text('¥${histories[index].amount}'),
+                      leading: Icon(HistoryCategory.values
+                          .byName(histories[index].category)
+                          .icon),
+                      title: Text('${histories[index].name}'),
+                      trailing:
+                          Text('¥${formatter.format(histories[index].amount)}'),
                     ),
                   ),
                   onDismissed: (direction) {

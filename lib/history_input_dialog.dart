@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:kakeibo/dropdown_item.dart';
+import 'package:kakeibo/history_category.dart';
 import 'package:kakeibo/history.dart';
 
 class HistoryInputDialog extends StatefulWidget {
@@ -53,12 +53,13 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                   items: HistoryCategory.values
                       .map<DropdownMenuItem<String>>((HistoryCategory value) {
                     return DropdownMenuItem<String>(
-                      value: value.itemName,
-                      child: Text(value.itemName),
+                      value: value.toString().split(".").last,
+                      child: Text(value.japaneseName),
                     );
                   }).toList(),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'カテゴリを選択してください。';
+                    return null;
                   },
                 ),
                 TextFormField(

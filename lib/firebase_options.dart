@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '990319184014',
     projectId: 'kakeibo-c9ec9',
     storageBucket: 'kakeibo-c9ec9.appspot.com',
-    iosClientId: '990319184014-6te76rkkoee4jgvm7sock43lq2hiltac.apps.googleusercontent.com',
+    iosClientId:
+        '990319184014-6te76rkkoee4jgvm7sock43lq2hiltac.apps.googleusercontent.com',
     iosBundleId: 'com.example.kakeibo',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '990319184014',
     projectId: 'kakeibo-c9ec9',
     storageBucket: 'kakeibo-c9ec9.appspot.com',
-    iosClientId: '990319184014-6te76rkkoee4jgvm7sock43lq2hiltac.apps.googleusercontent.com',
+    iosClientId:
+        '990319184014-6te76rkkoee4jgvm7sock43lq2hiltac.apps.googleusercontent.com',
     iosBundleId: 'com.example.kakeibo',
   );
 }

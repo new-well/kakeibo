@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
+
 enum HistoryCategory {
   food,
-  daylyUsed,
+  dailyUsed,
   hobby,
   entertaiment,
   transportation,
@@ -17,12 +19,12 @@ enum HistoryCategory {
   other,
 }
 
-extension HistoryCategoryExtension on HistoryCategory {
-  String get itemName {
+extension HistoryCategoryToJapaneseNameExtension on HistoryCategory {
+  String get japaneseName {
     switch (this) {
       case HistoryCategory.food:
         return '食費';
-      case HistoryCategory.daylyUsed:
+      case HistoryCategory.dailyUsed:
         return '日用品';
       case HistoryCategory.hobby:
         return '趣味・娯楽';
@@ -52,6 +54,45 @@ extension HistoryCategoryExtension on HistoryCategory {
         return '保険';
       case HistoryCategory.other:
         return 'その他';
+    }
+  }
+}
+
+extension HistoryCategoryToIconExtension on HistoryCategory {
+  IconData get icon {
+    switch (this) {
+      case HistoryCategory.food:
+        return Icons.restaurant;
+      case HistoryCategory.dailyUsed:
+        return Icons.shopping_basket;
+      case HistoryCategory.hobby:
+        return Icons.sports_esports;
+      case HistoryCategory.entertaiment:
+        return Icons.attractions;
+      case HistoryCategory.transportation:
+        return Icons.directions_bus;
+      case HistoryCategory.beauty:
+        return Icons.auto_awesome;
+      case HistoryCategory.medical:
+        return Icons.medical_services;
+      case HistoryCategory.autoMobile:
+        return Icons.directions_car;
+      case HistoryCategory.education:
+        return Icons.school;
+      case HistoryCategory.special:
+        return Icons.try_sms_star;
+      case HistoryCategory.utility:
+        return Icons.gas_meter;
+      case HistoryCategory.communication:
+        return Icons.rss_feed;
+      case HistoryCategory.housing:
+        return Icons.home;
+      case HistoryCategory.tax:
+        return Icons.savings;
+      case HistoryCategory.insurance:
+        return Icons.favorite;
+      case HistoryCategory.other:
+        return Icons.payments;
     }
   }
 }
