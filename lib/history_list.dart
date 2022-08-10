@@ -32,7 +32,8 @@ class HistoryList extends StatelessWidget {
                   child: Card(
                     child: ListTile(
                       title: Text(
-                          '${histories[index].category}, ${histories[index].amount}'),
+                          '${histories[index].category}, ${histories[index].name}'),
+                      trailing: Text('¥${histories[index].amount}'),
                     ),
                   ),
                   onDismissed: (direction) {

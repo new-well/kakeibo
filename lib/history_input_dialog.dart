@@ -13,12 +13,15 @@ class HistoryInputDialog extends StatefulWidget {
 
 class _HistoryInputDialogState extends State<HistoryInputDialog> {
   String? dropdownValue;
+  final _nameEditingController = TextEditingController();
   final _amountEditingController = TextEditingController();
-  final _focusNode = FocusNode();
+  final _nonFocusNode = FocusNode();
+  final _amountFocusNode = FocusNode();
   final _amoutFormKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
+    _nameEditingController.dispose();
     _amountEditingController.dispose();
     super.dispose();
   }
@@ -26,9 +29,9 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
   @override
   Widget build(BuildContext context) {
     return Focus(
-      focusNode: _focusNode,
+      focusNode: _nonFocusNode,
       child: GestureDetector(
-        onTap: _focusNode.requestFocus,
+        onTap: _nonFocusNode.requestFocus,
         child: AlertDialog(
           title: const Text('利用した金額を入力'),
           content: Form(
@@ -59,6 +62,18 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                   },
                 ),
                 TextFormField(
+                  controller: _nameEditingController,
+                  decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: '支出の名前を入力',
+                  ),
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_amountFocusNode);
+                  },
+                ),
+                TextFormField(
+                  focusNode: _amountFocusNode,
                   controller: _amountEditingController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -85,11 +100,13 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
             TextButton(
               onPressed: () {
                 if (_amoutFormKey.currentState!.validate()) {
+                  String? name = _nameEditingController.text;
                   int amount = int.parse(_amountEditingController.text);
                   Navigator.pop<History>(
                       context,
                       History(
                         category: dropdownValue!,
+                        name: name,
                         amount: amount,
                       ));
                 }

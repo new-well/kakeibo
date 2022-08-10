@@ -70,10 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _removeHistory(int index) async {
-    // todo
-    //   FirebaseFirestore.instance
-    //       .doc('history/sample_wallet')
-    //       .set({'amt': _histories});
+    await collectionRef.doc(_histories[index].key).delete();
+    featchHistories();
   }
 
   int _calculateHistory() {
