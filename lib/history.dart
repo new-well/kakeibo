@@ -5,8 +5,9 @@ class History {
   final String? category;
   final String? name;
   final int? amount;
+  final Timestamp? createdAt;
 
-  History({this.key, this.category, this.name, this.amount});
+  History({this.key, this.category, this.name, this.amount, this.createdAt});
 
   factory History.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -18,6 +19,7 @@ class History {
       category: data?['category'],
       name: data?['name'],
       amount: data?['amount'],
+      createdAt: data?['createdAt'],
     );
   }
 
@@ -26,6 +28,10 @@ class History {
       if (category != null) 'category': category,
       if (name != null) 'name': name,
       if (amount != null) 'amount': amount,
+      if (createdAt != null)
+        'createdAt': createdAt
+      else
+        'createdAt': FieldValue.serverTimestamp(),
     };
   }
 }

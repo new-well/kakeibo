@@ -54,7 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> featchHistories() async {
-    final querySnapshot = await collectionRef.get();
+    final querySnapshot =
+        await collectionRef.orderBy('createdAt', descending: true).get();
     setState(() {
       _histories = querySnapshot.docs
           .map(

@@ -18,7 +18,8 @@ class HistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var formatter = NumberFormat("#,###");
+    var numberFormatter = NumberFormat("#,###");
+    var datetimeFormatter = DateFormat('yyyy/MM/dd');
     return Column(
       children: [
         const SizedBox(
@@ -39,8 +40,10 @@ class HistoryList extends StatelessWidget {
                           .byName(histories[index].category)
                           .icon),
                       title: Text('${histories[index].name}'),
-                      trailing:
-                          Text('¥${formatter.format(histories[index].amount)}'),
+                      subtitle: Text(datetimeFormatter.format(DateTime.parse(
+                          histories[index].createdAt.toDate().toString()))),
+                      trailing: Text(
+                          '¥${numberFormatter.format(histories[index].amount)}'),
                     ),
                   ),
                   onDismissed: (direction) {
