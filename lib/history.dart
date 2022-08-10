@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:kakeibo/history_category.dart';
-
 class History {
   final String? key;
   final String? category;
