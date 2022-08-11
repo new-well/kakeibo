@@ -8,6 +8,7 @@ import 'package:kakeibo/history_input_dialog.dart';
 import 'package:kakeibo/history_list.dart';
 import 'package:kakeibo/total_amount_displayer.dart';
 import 'package:kakeibo/wallet.dart';
+import 'package:kakeibo/wallet_drawer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -117,8 +118,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final double resultAreaHeight = maxHeight * (20 / 100);
     final double historyAreaHeight = maxHeight * (80 / 100);
 
-    const double drawerHeaderHeight = 120;
-
     return Scaffold(
       appBar: AppBar(
         title: wallets.isEmpty
@@ -152,47 +151,15 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         child: const Icon(Icons.add),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            SizedBox(
-              height: drawerHeaderHeight,
-              child: DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: Text(
-                  'おさいふ',
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Theme.of(context).cardColor,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: size.height - drawerHeaderHeight,
-              child: Scrollbar(
-                child: ListView.builder(
-                  itemCount: wallets.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('${wallets[index].name}'),
-                      onTap: () {
-                        setState(() {
-                          sellectedWalletIndex = index;
-                        });
-                        featchHistories();
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
+      drawer: WalletDrawer(
+        height: size.height,
+        wallets: wallets,
+        onTapFunc: (int index) {
+          setState(() {
+            sellectedWalletIndex = index;
+          });
+          featchHistories();
+        },
       ),
     );
   }
