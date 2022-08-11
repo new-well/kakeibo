@@ -5,7 +5,10 @@ import 'package:kakeibo/history_category.dart';
 import 'package:kakeibo/history.dart';
 
 class HistoryInputDialog extends StatefulWidget {
-  const HistoryInputDialog({Key? key}) : super(key: key);
+  const HistoryInputDialog({Key? key, required this.walletKey})
+      : super(key: key);
+
+  final String walletKey;
 
   @override
   State<HistoryInputDialog> createState() => _HistoryInputDialogState();
@@ -109,6 +112,7 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                         category: dropdownValue!,
                         name: name,
                         amount: amount,
+                        walletKey: widget.walletKey,
                       ));
                 }
               },

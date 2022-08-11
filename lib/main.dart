@@ -7,6 +7,7 @@ import 'package:kakeibo/history.dart';
 import 'package:kakeibo/history_input_dialog.dart';
 import 'package:kakeibo/history_list.dart';
 import 'package:kakeibo/total_amount_displayer.dart';
+import 'package:kakeibo/wallet.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,8 +41,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List _histories = [];
-  final collectionRef =
+  int sellectedWalletIndex = 0;
+  List wallets = [];
+  List histories = [];
+  final walletCollectionRef =
+      FirebaseFirestore.instance.collection('wallet').withConverter(
+            fromFirestore: Wallet.fromFirestore,
+            toFirestore: (Wallet wallet, _) => wallet.toFirestore(),
+          );
+  final historyCollectionRef =
       FirebaseFirestore.instance.collection('history').withConverter(
             fromFirestore: History.fromFirestore,
             toFirestore: (History history, _) => history.toFirestore(),
@@ -50,14 +58,29 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    featchWallets();
+  }
+
+  Future<void> featchWallets() async {
+    final querySnapshot =
+        await walletCollectionRef.orderBy('createdAt', descending: true).get();
+    setState(() {
+      wallets = querySnapshot.docs
+          .map(
+            (doc) => doc.data(),
+          )
+          .toList();
+    });
     featchHistories();
   }
 
   Future<void> featchHistories() async {
-    final querySnapshot =
-        await collectionRef.orderBy('createdAt', descending: true).get();
+    final querySnapshot = await historyCollectionRef
+        .where('walletKey', isEqualTo: wallets[sellectedWalletIndex].key)
+        .orderBy('createdAt', descending: true)
+        .get();
     setState(() {
-      _histories = querySnapshot.docs
+      histories = querySnapshot.docs
           .map(
             (doc) => doc.data(),
           )
@@ -66,19 +89,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _addHistory(History history) async {
-    await collectionRef.doc().set(history);
+    await historyCollectionRef.doc().set(history);
     featchHistories();
   }
 
   void _removeHistory(int index) async {
-    await collectionRef.doc(_histories[index].key).delete();
+    await historyCollectionRef.doc(histories[index].key).delete();
     featchHistories();
   }
 
   int _calculateHistory() {
     int totalAmount = 0;
-    if (_histories.isNotEmpty) {
-      for (History history in _histories) {
+    if (histories.isNotEmpty) {
+      for (History history in histories) {
         totalAmount += history.amount!;
       }
     }
@@ -94,9 +117,13 @@ class _MyHomePageState extends State<MyHomePage> {
     final double resultAreaHeight = maxHeight * (20 / 100);
     final double historyAreaHeight = maxHeight * (80 / 100);
 
+    const double drawerHeaderHeight = 120;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: wallets.isEmpty
+            ? const Text('')
+            : Text(wallets[sellectedWalletIndex].name),
       ),
       body: Container(
         padding: const EdgeInsets.only(right: 20, left: 20),
@@ -107,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
               boxHeight: resultAreaHeight,
             ),
             HistoryList(
-              histories: _histories,
+              histories: histories,
               scrollAreaHeight: historyAreaHeight,
               dismissibleFunc: _removeHistory,
             ),
@@ -118,11 +145,54 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () async {
           History? history = await showDialog(
             context: context,
-            builder: (BuildContext context) => const HistoryInputDialog(),
+            builder: (BuildContext context) => HistoryInputDialog(
+                walletKey: wallets[sellectedWalletIndex].key),
           );
           if (history != null) _addHistory(history);
         },
         child: const Icon(Icons.add),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            SizedBox(
+              height: drawerHeaderHeight,
+              child: DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Text(
+                  'おさいふ',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Theme.of(context).cardColor,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: size.height - drawerHeaderHeight,
+              child: Scrollbar(
+                child: ListView.builder(
+                  itemCount: wallets.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text('${wallets[index].name}'),
+                      onTap: () {
+                        setState(() {
+                          sellectedWalletIndex = index;
+                        });
+                        featchHistories();
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
