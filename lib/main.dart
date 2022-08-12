@@ -59,12 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    featchWallets();
+    featchWallets().then((value) => featchHistories());
   }
 
   Future<void> featchWallets() async {
-    final querySnapshot =
-        await walletCollectionRef.orderBy('createdAt', descending: true).get();
+    final querySnapshot = await walletCollectionRef.orderBy('createdAt').get();
     setState(() {
       wallets = querySnapshot.docs
           .map(
@@ -72,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
           )
           .toList();
     });
-    featchHistories();
   }
 
   Future<void> featchHistories() async {
@@ -87,6 +85,11 @@ class _MyHomePageState extends State<MyHomePage> {
           )
           .toList();
     });
+  }
+
+  void _addWallet(Wallet wallet) async {
+    await walletCollectionRef.doc().set(wallet);
+    featchWallets();
   }
 
   void _addHistory(History history) async {
@@ -160,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
           featchHistories();
         },
+        addWalletFunc: _addWallet,
       ),
     );
   }
