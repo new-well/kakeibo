@@ -59,7 +59,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    featchWallets().then((value) => featchHistories());
+    featchWallets().then((value) {
+      if (wallets.isNotEmpty) featchHistories();
+    });
   }
 
   Future<void> featchWallets() async {
@@ -97,6 +99,11 @@ class _MyHomePageState extends State<MyHomePage> {
     featchHistories();
   }
 
+  void _removeWallet(int index) async {
+    await walletCollectionRef.doc(wallets[index].key).delete();
+    featchWallets();
+  }
+
   void _removeHistory(int index) async {
     await historyCollectionRef.doc(histories[index].key).delete();
     featchHistories();
@@ -127,22 +134,30 @@ class _MyHomePageState extends State<MyHomePage> {
             ? const Text('')
             : Text(wallets[sellectedWalletIndex].name),
       ),
-      body: Container(
-        padding: const EdgeInsets.only(right: 20, left: 20),
-        child: Column(
-          children: <Widget>[
-            TotalAmountDisplayer(
-              num: _calculateHistory(),
-              boxHeight: resultAreaHeight,
+      body: wallets.isEmpty
+          ? const Center(
+              child: Text(
+                '右にスワイプして\n新しいおさいふを作成しよう',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20),
+              ),
+            )
+          : Container(
+              padding: const EdgeInsets.only(right: 20, left: 20),
+              child: Column(
+                children: <Widget>[
+                  TotalAmountDisplayer(
+                    num: _calculateHistory(),
+                    boxHeight: resultAreaHeight,
+                  ),
+                  HistoryList(
+                    histories: histories,
+                    scrollAreaHeight: historyAreaHeight,
+                    dismissibleFunc: _removeHistory,
+                  ),
+                ],
+              ),
             ),
-            HistoryList(
-              histories: histories,
-              scrollAreaHeight: historyAreaHeight,
-              dismissibleFunc: _removeHistory,
-            ),
-          ],
-        ),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           History? history = await showDialog(
@@ -164,6 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
           featchHistories();
         },
         addWalletFunc: _addWallet,
+        removeWalletFunc: _removeWallet,
       ),
     );
   }

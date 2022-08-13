@@ -8,13 +8,15 @@ class WalletDrawer extends StatefulWidget {
       required this.height,
       required this.wallets,
       required this.onTapFunc,
-      required this.addWalletFunc})
+      required this.addWalletFunc,
+      required this.removeWalletFunc})
       : super(key: key);
 
   final double height;
   final List wallets;
   final Function onTapFunc;
   final Function addWalletFunc;
+  final Function removeWalletFunc;
 
   @override
   State<WalletDrawer> createState() => _WalletDrawerState();
@@ -58,15 +60,23 @@ class _WalletDrawerState extends State<WalletDrawer> {
                         itemBuilder: (context, index) {
                           if (index != widget.wallets.length) {
                             return ListTile(
-                              leading: const Icon(Icons.wallet),
-                              title: Text(
-                                '${widget.wallets[index].name}',
-                                style: const TextStyle(fontSize: 16),
+                              trailing: TextButton(
+                                child: const Icon(Icons.clear),
+                                onPressed: () => widget.removeWalletFunc(index),
                               ),
-                              onTap: () {
-                                widget.onTapFunc(index);
-                                Navigator.pop(context);
-                              },
+                              title: TextButton.icon(
+                                label: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '${widget.wallets[index].name}',
+                                  ),
+                                ),
+                                icon: const Icon(Icons.wallet),
+                                onPressed: () {
+                                  widget.onTapFunc(index);
+                                  Navigator.pop(context);
+                                },
+                              ),
                             );
                           } else if (!isEdit) {
                             return ListTile(
