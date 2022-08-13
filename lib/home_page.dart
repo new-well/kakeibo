@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kakeibo/accout_drawer.dart';
 
 import 'package:kakeibo/history.dart';
 import 'package:kakeibo/history_input_dialog.dart';
@@ -9,13 +11,17 @@ import 'package:kakeibo/wallet.dart';
 import 'package:kakeibo/wallet_drawer.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({Key? key, required this.title, required this.user})
+      : super(key: key);
   final String title;
+  final User? user;
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   int sellectedWalletIndex = 0;
   List wallets = [];
   List histories = [];
@@ -39,7 +45,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> featchWallets() async {
-    final querySnapshot = await walletCollectionRef.orderBy('createdAt').get();
+    final querySnapshot = await walletCollectionRef
+        .where('userUids', arrayContains: widget.user?.uid)
+        .orderBy('createdAt')
+        .get();
     if (mounted) {
       setState(() {
         wallets = querySnapshot.docs.map((doc) => doc.data()).toList();
@@ -60,11 +69,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _addWallet(Wallet wallet) async {
+    wallet.userUids = [widget.user?.uid];
     await walletCollectionRef.doc().set(wallet);
     featchWallets();
   }
 
   void _addHistory(History history) async {
+    history.createdUserUid = widget.user?.uid;
+    history.createdUserName = widget.user?.displayName;
     await historyCollectionRef.doc().set(history);
     featchHistories();
   }
@@ -99,11 +111,17 @@ class _HomePageState extends State<HomePage> {
     final double historyAreaHeight = maxHeight * (80 / 100);
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: wallets.isEmpty
-            ? const Text('')
-            : Text(wallets[sellectedWalletIndex].name),
-      ),
+          title: wallets.isEmpty
+              ? const Text('')
+              : Text(wallets[sellectedWalletIndex].name),
+          actions: <Widget>[
+            IconButton(
+              onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+              icon: const Icon(Icons.account_circle),
+            ),
+          ]),
       body: wallets.isEmpty
           ? const Center(
               child: Text(
@@ -151,6 +169,7 @@ class _HomePageState extends State<HomePage> {
         addWalletFunc: _addWallet,
         removeWalletFunc: _removeWallet,
       ),
+      endDrawer: AccountDrawer(user: widget.user),
     );
   }
 }

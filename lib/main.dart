@@ -32,9 +32,7 @@ class MyApp extends StatelessWidget {
             return const SizedBox();
           }
           if (snapshot.hasData) {
-            return const HomePage(
-              title: 'ちきちき',
-            );
+            return HomePage(title: 'ちきちき', user: snapshot.data);
           }
           return const SigninPage();
         },

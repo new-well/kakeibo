@@ -6,6 +6,8 @@ class History {
   final String? name;
   final int? amount;
   final String? walletKey;
+  String? createdUserUid;
+  String? createdUserName;
   final Timestamp? createdAt;
 
   History(
@@ -14,6 +16,8 @@ class History {
       this.name,
       this.amount,
       this.walletKey,
+      this.createdUserUid,
+      this.createdUserName,
       this.createdAt});
 
   factory History.fromFirestore(
@@ -27,6 +31,8 @@ class History {
       name: data?['name'],
       amount: data?['amount'],
       walletKey: data?['walletKey'],
+      createdUserUid: data?['createdUserUid'],
+      createdUserName: data?['createdUserName'],
       createdAt: data?['createdAt'],
     );
   }
@@ -37,6 +43,8 @@ class History {
       if (name != null) 'name': name,
       if (amount != null) 'amount': amount,
       if (walletKey != null) 'walletKey': walletKey,
+      if (createdUserUid != null) 'createdUserUid': createdUserUid,
+      if (createdUserName != null) 'createdUserName': createdUserName,
       if (createdAt != null)
         'createdAt': createdAt
       else
