@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
           return const SigninPage();
         },
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

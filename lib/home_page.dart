@@ -82,6 +82,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _removeWallet(int index) async {
+    setState(() {
+      sellectedWalletIndex = 0;
+    });
     await walletCollectionRef.doc(wallets[index].key).delete();
     featchWallets();
   }
