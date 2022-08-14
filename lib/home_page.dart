@@ -94,6 +94,13 @@ class _HomePageState extends State<HomePage> {
     featchHistories();
   }
 
+  void _joinWallet(String walletId) async {
+    await walletCollectionRef.doc(walletId).update({
+      'userUids': FieldValue.arrayUnion([widget.user?.uid]),
+    });
+    featchWallets();
+  }
+
   int _calculateHistory() {
     int totalAmount = 0;
     if (histories.isNotEmpty) {
@@ -171,6 +178,7 @@ class _HomePageState extends State<HomePage> {
           featchHistories();
         },
         addWalletFunc: _addWallet,
+        joinWalletFunc: _joinWallet,
         removeWalletFunc: _removeWallet,
       ),
       endDrawer: AccountDrawer(user: widget.user),

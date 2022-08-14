@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-class WalletInputDialog extends StatefulWidget {
-  const WalletInputDialog({Key? key}) : super(key: key);
+class WalletIdInputDialog extends StatefulWidget {
+  const WalletIdInputDialog({Key? key}) : super(key: key);
 
   @override
-  State<WalletInputDialog> createState() => _WalletInputDialogState();
+  State<WalletIdInputDialog> createState() => _WalletIdInputDialogState();
 }
 
-class _WalletInputDialogState extends State<WalletInputDialog> {
-  final _nameEditingController = TextEditingController();
+class _WalletIdInputDialogState extends State<WalletIdInputDialog> {
+  final _idEditingController = TextEditingController();
   final _nonFocusNode = FocusNode();
-  final _amoutFormKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _nameEditingController.dispose();
+    _idEditingController.dispose();
     super.dispose();
   }
 
@@ -25,22 +25,24 @@ class _WalletInputDialogState extends State<WalletInputDialog> {
       child: GestureDetector(
         onTap: _nonFocusNode.requestFocus,
         child: AlertDialog(
-          title: const Text('作成するおさいふの名前を入力してください'),
+          title: const Text('参加するおさいふのおさいふIDを入力してください'),
           content: Form(
-            key: _amoutFormKey,
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
                   autofocus: true,
-                  controller: _nameEditingController,
+                  controller: _idEditingController,
                   decoration: const InputDecoration(
                     border: UnderlineInputBorder(),
-                    labelText: 'おさいふの名前を入力',
+                    labelText: 'おさいふIDを入力',
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return '名前を入力してください。';
+                    if (value == null || value.isEmpty) {
+                      return 'おさいふIDを入力してください。';
+                    }
                     return null;
                   },
                 ),
@@ -56,11 +58,11 @@ class _WalletInputDialogState extends State<WalletInputDialog> {
             ),
             TextButton(
               onPressed: () {
-                if (_amoutFormKey.currentState!.validate()) {
-                  Navigator.pop<String?>(context, _nameEditingController.text);
+                if (_formKey.currentState!.validate()) {
+                  Navigator.pop<String?>(context, _idEditingController.text);
                 }
               },
-              child: const Text('作成'),
+              child: const Text('参加'),
             ),
           ],
         ),

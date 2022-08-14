@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:kakeibo/wallet.dart';
 import 'package:kakeibo/wallet_drawer_header.dart';
+import 'package:kakeibo/wallet_id_input_dialog.dart';
 import 'package:kakeibo/wallet_input_dialog.dart';
 
 class WalletDrawer extends StatelessWidget {
@@ -11,6 +12,7 @@ class WalletDrawer extends StatelessWidget {
       required this.wallets,
       required this.onTapFunc,
       required this.addWalletFunc,
+      required this.joinWalletFunc,
       required this.removeWalletFunc})
       : super(key: key);
 
@@ -18,6 +20,7 @@ class WalletDrawer extends StatelessWidget {
   final List wallets;
   final Function onTapFunc;
   final Function addWalletFunc;
+  final Function joinWalletFunc;
   final Function removeWalletFunc;
 
   @override
@@ -86,9 +89,18 @@ class WalletDrawer extends StatelessWidget {
                         }
                       },
                     ),
-                    const ListTile(
-                      leading: Icon(Icons.share),
-                      title: Text('他の人のおさいふに参加'),
+                    ListTile(
+                      leading: const Icon(Icons.share),
+                      title: const Text('他の人のおさいふに参加'),
+                      onTap: () async {
+                        String? walletId = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                const WalletIdInputDialog());
+                        if (walletId != null) {
+                          joinWalletFunc(walletId);
+                        }
+                      },
                     )
                   ],
                 ),
