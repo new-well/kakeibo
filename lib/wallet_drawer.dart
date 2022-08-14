@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:kakeibo/wallet.dart';
 import 'package:kakeibo/wallet_drawer_header.dart';
 import 'package:kakeibo/wallet_id_input_dialog.dart';
 import 'package:kakeibo/wallet_input_dialog.dart';
 
-class WalletDrawer extends StatelessWidget {
+class WalletDrawer extends StatefulWidget {
   const WalletDrawer(
       {Key? key,
       required this.height,
@@ -24,8 +25,21 @@ class WalletDrawer extends StatelessWidget {
   final Function removeWalletFunc;
 
   @override
+  State<WalletDrawer> createState() => _WalletDrawerState();
+}
+
+class _WalletDrawerState extends State<WalletDrawer> {
+  bool isEdit = false;
+
+  void changeIsEdit() {
+    setState(() {
+      isEdit = !isEdit;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const double drawerHeaderHeight = 70;
+    const double drawerHeaderHeight = 80;
     const double drawerMarginHeight = 100;
     const double drawerFooterHeight = 120;
 
@@ -38,31 +52,65 @@ class WalletDrawer extends StatelessWidget {
         child: Drawer(
           child: ListView(
             children: [
-              const WalletDrawerHeader(height: drawerHeaderHeight),
+              WalletDrawerHeader(
+                height: drawerHeaderHeight,
+                onTapFunc: () => changeIsEdit,
+              ),
               SizedBox(
-                height: height -
+                height: widget.height -
                     drawerHeaderHeight -
                     drawerMarginHeight -
                     drawerFooterHeight,
                 child: Scrollbar(
                   child: ListView.builder(
-                    itemCount: wallets.length,
+                    itemCount: widget.wallets.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        trailing: TextButton(
-                          child: const Icon(Icons.clear),
-                          onPressed: () => removeWalletFunc(index),
-                        ),
+                        trailing: isEdit
+                            ? TextButton(
+                                child: const Icon(Icons.clear),
+                                onPressed: () async {
+                                  bool ok = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      title: const Text("確認"),
+                                      content: const Text("削除します。よろしいですか？"),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () async {
+                                              Navigator.of(context).pop(true);
+                                            },
+                                            child: const Text("削除")),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: const Text("キャンセル"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (ok) widget.removeWalletFunc(index);
+                                },
+                              )
+                            : TextButton(
+                                child: const Icon(Icons.copy),
+                                onPressed: () async {
+                                  final data = ClipboardData(
+                                      text: widget.wallets[index].key);
+                                  Clipboard.setData(data);
+                                },
+                              ),
                         title: TextButton.icon(
                           label: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              '${wallets[index].name}',
+                              '${widget.wallets[index].name}',
                             ),
                           ),
                           icon: const Icon(Icons.wallet),
                           onPressed: () {
-                            onTapFunc(index);
+                            widget.onTapFunc(index);
                             Navigator.pop(context);
                           },
                         ),
@@ -85,7 +133,7 @@ class WalletDrawer extends StatelessWidget {
                             builder: (BuildContext context) =>
                                 const WalletInputDialog());
                         if (walletName != null) {
-                          addWalletFunc(Wallet(name: walletName));
+                          widget.addWalletFunc(Wallet(name: walletName));
                         }
                       },
                     ),
@@ -98,7 +146,7 @@ class WalletDrawer extends StatelessWidget {
                             builder: (BuildContext context) =>
                                 const WalletIdInputDialog());
                         if (walletId != null) {
-                          joinWalletFunc(walletId);
+                          widget.joinWalletFunc(walletId);
                         }
                       },
                     )

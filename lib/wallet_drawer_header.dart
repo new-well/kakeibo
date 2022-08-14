@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class WalletDrawerHeader extends StatelessWidget {
-  const WalletDrawerHeader({Key? key, required this.height}) : super(key: key);
+  const WalletDrawerHeader(
+      {Key? key, required this.height, required this.onTapFunc})
+      : super(key: key);
 
   final double height;
+  final Function onTapFunc;
 
   @override
   Widget build(BuildContext context) {
@@ -13,11 +16,20 @@ class WalletDrawerHeader extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
         ),
-        child: Text(
-          'おさいふ',
-          style: TextStyle(
-            fontSize: 24,
-            color: Theme.of(context).cardColor,
+        child: ListTile(
+          trailing: IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Theme.of(context).canvasColor,
+            ),
+            onPressed: onTapFunc(),
+          ),
+          title: Text(
+            'おさいふ',
+            style: TextStyle(
+              fontSize: 24,
+              color: Theme.of(context).cardColor,
+            ),
           ),
         ),
       ),
