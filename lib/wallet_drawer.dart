@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:kakeibo/wallet.dart';
 import 'package:kakeibo/wallet_drawer_header.dart';
+import 'package:kakeibo/wallet_input_dialog.dart';
 
-class WalletDrawer extends StatefulWidget {
+class WalletDrawer extends StatelessWidget {
   const WalletDrawer(
       {Key? key,
       required this.height,
@@ -19,98 +21,79 @@ class WalletDrawer extends StatefulWidget {
   final Function removeWalletFunc;
 
   @override
-  State<WalletDrawer> createState() => _WalletDrawerState();
-}
-
-class _WalletDrawerState extends State<WalletDrawer> {
-  bool isEdit = false;
-  final _nameEditingController = TextEditingController();
-  final _nonFocusNode = FocusNode();
-  static const double drawerHeaderHeight = 70;
-  static const double drawerMarginHeight = 100;
-
-  @override
-  void dispose() {
-    _nameEditingController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _nonFocusNode,
-      child: GestureDetector(
-        onTap: _nonFocusNode.requestFocus,
-        child: SafeArea(
-          child: ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-            child: Drawer(
-              child: ListView(
-                children: [
-                  const WalletDrawerHeader(height: drawerHeaderHeight),
-                  SizedBox(
-                    height:
-                        widget.height - drawerHeaderHeight - drawerMarginHeight,
-                    child: Scrollbar(
-                      child: ListView.builder(
-                        itemCount: widget.wallets.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index != widget.wallets.length) {
-                            return ListTile(
-                              trailing: TextButton(
-                                child: const Icon(Icons.clear),
-                                onPressed: () => widget.removeWalletFunc(index),
-                              ),
-                              title: TextButton.icon(
-                                label: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    '${widget.wallets[index].name}',
-                                  ),
-                                ),
-                                icon: const Icon(Icons.wallet),
-                                onPressed: () {
-                                  widget.onTapFunc(index);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            );
-                          } else if (!isEdit) {
-                            return ListTile(
-                              leading: const Icon(Icons.add),
-                              title: const Text(
-                                '新しいおさいふの追加',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  isEdit = true;
-                                });
-                              },
-                            );
-                          } else {
-                            return ListTile(
-                              leading: const Icon(Icons.wallet),
-                              title: TextField(
-                                controller: _nameEditingController,
-                                autofocus: true,
-                                onSubmitted: (value) {
-                                  Navigator.pop(context);
-                                  widget.addWalletFunc(Wallet(name: value));
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
+    const double drawerHeaderHeight = 70;
+    const double drawerMarginHeight = 100;
+    const double drawerFooterHeight = 120;
+
+    return SafeArea(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+        child: Drawer(
+          child: ListView(
+            children: [
+              const WalletDrawerHeader(height: drawerHeaderHeight),
+              SizedBox(
+                height: height -
+                    drawerHeaderHeight -
+                    drawerMarginHeight -
+                    drawerFooterHeight,
+                child: Scrollbar(
+                  child: ListView.builder(
+                    itemCount: wallets.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        trailing: TextButton(
+                          child: const Icon(Icons.clear),
+                          onPressed: () => removeWalletFunc(index),
+                        ),
+                        title: TextButton.icon(
+                          label: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '${wallets[index].name}',
+                            ),
+                          ),
+                          icon: const Icon(Icons.wallet),
+                          onPressed: () {
+                            onTapFunc(index);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      );
+                    },
                   ),
-                ],
+                ),
               ),
-            ),
+              Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Column(
+                  children: <Widget>[
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.add),
+                      title: const Text('新しいおさいふの追加'),
+                      onTap: () async {
+                        String? walletName = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                const WalletInputDialog());
+                        if (walletName != null) {
+                          addWalletFunc(Wallet(name: walletName));
+                        }
+                      },
+                    ),
+                    const ListTile(
+                      leading: Icon(Icons.share),
+                      title: Text('他の人のおさいふに参加'),
+                    )
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

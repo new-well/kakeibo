@@ -108,13 +108,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final EdgeInsets padding = MediaQuery.of(context).padding;
-    double maxHeight = size.height - padding.top - padding.bottom - 50;
+    double maxHeight = size.height - padding.top - padding.bottom - 100;
 
     final double resultAreaHeight = maxHeight * (20 / 100);
     final double historyAreaHeight = maxHeight * (80 / 100);
 
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
           title: wallets.isEmpty
               ? const Text('')
