@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Kakeibo</string>
+	<string>シェアするかけいぼ</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -52,7 +52,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.990319184014-6te76rkkoee4jgvm7sock43lq2hiltac</string>
+				<string>com.googleusercontent.apps.990319184014-c3t7f24dgfq807tqbmmi1pno6k560fjl</string>
 			</array>
 		</dict>
 	</array>
