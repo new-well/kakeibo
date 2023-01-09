@@ -1,56 +1,96 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:kakeibo/home_page.dart';
+import 'package:kakeibo/start_page.dart';
+
+import 'package:kakeibo/user.dart';
 
 class SigninPage extends StatefulWidget {
-  const SigninPage({Key? key}) : super(key: key);
+  const SigninPage({Key? key, required this.writeFunc}) : super(key: key);
+  final Function writeFunc;
 
   @override
   State<SigninPage> createState() => _SigninPageState();
 }
 
 class _SigninPageState extends State<SigninPage> {
-  // Googleアカウントの表示名
-  String _displayName = "";
-  static final googleLogin = GoogleSignIn(scopes: [
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ]);
+  User user = User(
+    name: '',
+  );
+
+  final _userNameEditingController = TextEditingController();
+  final _nonFocusNode = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+
+  final userCollectionRef =
+      FirebaseFirestore.instance.collection('user').withConverter(
+            fromFirestore: User.fromFirestore,
+            toFirestore: (User wallet, _) => wallet.toFirestore(),
+          );
+
+  void _addUser(User newUser) async {
+    await userCollectionRef
+        .add(newUser)
+        .then((documentSnapshot) => {widget.writeFunc(documentSnapshot.id)});
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Hello $_displayName", style: const TextStyle(fontSize: 50)),
-          TextButton(
-            onPressed: () async {
-              // Google認証
-              GoogleSignInAccount? signinAccount = await googleLogin.signIn();
-              if (signinAccount == null) return;
-              GoogleSignInAuthentication auth =
-                  await signinAccount.authentication;
-              final OAuthCredential credential = GoogleAuthProvider.credential(
-                idToken: auth.idToken,
-                accessToken: auth.accessToken,
-              );
-              // 認証情報をFirebaseに登録
-              User? user =
-                  (await FirebaseAuth.instance.signInWithCredential(credential))
-                      .user;
-              if (user != null) {
-                setState(() {
-                  // 画面を更新
-                  _displayName = user.displayName!;
-                });
-              }
-            },
-            child: const Text(
-              'login',
-              style: TextStyle(fontSize: 50),
+    return Focus(
+      focusNode: _nonFocusNode,
+      child: GestureDetector(
+        onTap: _nonFocusNode.requestFocus,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text(""),
+          ),
+          body: Center(
+            child: Container(
+              padding: const EdgeInsets.only(right: 20, left: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Text(
+                    'シェアする家計簿を使ってみよう',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: TextFormField(
+                      controller: _userNameEditingController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'ユーザ名を入力してください';
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'ユーザ名を入力',
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        String? name = _userNameEditingController.text;
+                        User newUser = User(
+                          name: name,
+                        );
+                        _addUser(newUser);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const StartPage()));
+                      }
+                    },
+                    child: const Text("始める"),
+                  ),
+                ],
+              ),
             ),
           ),
-        ]),
+        ),
       ),
     );
   }

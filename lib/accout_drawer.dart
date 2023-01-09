@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:kakeibo/user.dart';
 
 class AccountDrawer extends StatelessWidget {
-  const AccountDrawer({Key? key, required this.user}) : super(key: key);
-  final User? user;
+  const AccountDrawer({Key? key, required this.user, required this.deleteFunc})
+      : super(key: key);
+  final User user;
+  final Function deleteFunc;
 
   static const double drawerHeaderHeight = 70;
   @override
@@ -34,10 +37,16 @@ class AccountDrawer extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: Text(
-                  '${user?.displayName}',
-                  style: const TextStyle(fontSize: 16),
-                ),
+                child: Column(children: [
+                  Text(
+                    '${user.name}',
+                    style: const TextStyle(fontSize: 30),
+                  ),
+                  TextButton(
+                    onPressed: () => deleteFunc(),
+                    child: const Text('アカウント情報を削除'),
+                  ),
+                ]),
               )
             ],
           ),

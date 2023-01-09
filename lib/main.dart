@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:kakeibo/start_page.dart';
 
 import 'package:kakeibo/firebase_options.dart';
-import 'package:kakeibo/home_page.dart';
-import 'package:kakeibo/signin_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,18 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox();
-          }
-          if (snapshot.hasData) {
-            return HomePage(title: 'ちきちき', user: snapshot.data);
-          }
-          return const SigninPage();
-        },
-      ),
+      home: const StartPage(),
       debugShowCheckedModeBanner: false,
     );
   }

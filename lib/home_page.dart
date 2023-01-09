@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kakeibo/accout_drawer.dart';
@@ -7,14 +6,16 @@ import 'package:kakeibo/history.dart';
 import 'package:kakeibo/history_input_dialog.dart';
 import 'package:kakeibo/history_list.dart';
 import 'package:kakeibo/total_amount_displayer.dart';
+import 'package:kakeibo/user.dart';
 import 'package:kakeibo/wallet.dart';
 import 'package:kakeibo/wallet_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title, required this.user})
       : super(key: key);
   final String title;
-  final User? user;
+  final User user;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -46,7 +47,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> featchWallets() async {
     final querySnapshot = await walletCollectionRef
-        .where('userUids', arrayContains: widget.user?.uid)
+        .where('userUids', arrayContains: widget.user.key)
         .orderBy('createdAt')
         .get();
     if (mounted) {
@@ -69,14 +70,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _addWallet(Wallet wallet) async {
-    wallet.userUids = [widget.user?.uid];
+    wallet.userUids = [widget.user.key];
     await walletCollectionRef.doc().set(wallet);
     featchWallets();
   }
 
   void _addHistory(History history) async {
-    history.createdUserUid = widget.user?.uid;
-    history.createdUserName = widget.user?.displayName;
+    history.createdUserUid = widget.user.key;
+    history.createdUserName = widget.user.name;
     await historyCollectionRef.doc().set(history);
     featchHistories();
   }
@@ -96,9 +97,14 @@ class _HomePageState extends State<HomePage> {
 
   void _joinWallet(String walletId) async {
     await walletCollectionRef.doc(walletId).update({
-      'userUids': FieldValue.arrayUnion([widget.user?.uid]),
+      'userUids': FieldValue.arrayUnion([widget.user.key]),
     });
     featchWallets();
+  }
+
+  void _removeAcountInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('uid');
   }
 
   int _calculateHistory() {
@@ -121,67 +127,69 @@ class _HomePageState extends State<HomePage> {
     final double historyAreaHeight = maxHeight * (80 / 100);
 
     return Scaffold(
-      key: _scaffoldKey,
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-          title: wallets.isEmpty
-              ? const Text('')
-              : Text(wallets[sellectedWalletIndex].name),
-          actions: <Widget>[
-            IconButton(
-              onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-              icon: const Icon(Icons.account_circle),
-            ),
-          ]),
-      body: wallets.isEmpty
-          ? const Center(
-              child: Text(
-                '右にスワイプして\n新しいおさいふを作成しよう',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20),
+        key: _scaffoldKey,
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+            title: wallets.isEmpty
+                ? const Text('')
+                : Text(wallets[sellectedWalletIndex].name),
+            actions: <Widget>[
+              IconButton(
+                onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+                icon: const Icon(Icons.account_circle),
               ),
-            )
-          : Container(
-              padding: const EdgeInsets.only(right: 20, left: 20),
-              child: Column(
-                children: <Widget>[
-                  TotalAmountDisplayer(
-                    num: _calculateHistory(),
-                    boxHeight: resultAreaHeight,
-                  ),
-                  HistoryList(
-                    histories: histories,
-                    scrollAreaHeight: historyAreaHeight,
-                    dismissibleFunc: _removeHistory,
-                  ),
-                ],
+            ]),
+        body: wallets.isEmpty
+            ? const Center(
+                child: Text(
+                  '右にスワイプして\n新しいおさいふを作成しよう',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20),
+                ),
+              )
+            : Container(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Column(
+                  children: <Widget>[
+                    TotalAmountDisplayer(
+                      num: _calculateHistory(),
+                      boxHeight: resultAreaHeight,
+                    ),
+                    HistoryList(
+                      histories: histories,
+                      scrollAreaHeight: historyAreaHeight,
+                      dismissibleFunc: _removeHistory,
+                    ),
+                  ],
+                ),
               ),
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          History? history = await showDialog(
-            context: context,
-            builder: (BuildContext context) => HistoryInputDialog(
-                walletKey: wallets[sellectedWalletIndex].key),
-          );
-          if (history != null) _addHistory(history);
-        },
-        child: const Icon(Icons.add),
-      ),
-      drawer: WalletDrawer(
-        height: size.height,
-        wallets: wallets,
-        onTapFunc: (int index) {
-          setState(() {
-            sellectedWalletIndex = index;
-          });
-          featchHistories();
-        },
-        addWalletFunc: _addWallet,
-        joinWalletFunc: _joinWallet,
-        removeWalletFunc: _removeWallet,
-      ),
-      endDrawer: AccountDrawer(user: widget.user),
-    );
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            History? history = await showDialog(
+              context: context,
+              builder: (BuildContext context) => HistoryInputDialog(
+                  walletKey: wallets[sellectedWalletIndex].key),
+            );
+            if (history != null) _addHistory(history);
+          },
+          child: const Icon(Icons.add),
+        ),
+        drawer: WalletDrawer(
+          height: size.height,
+          wallets: wallets,
+          onTapFunc: (int index) {
+            setState(() {
+              sellectedWalletIndex = index;
+            });
+            featchHistories();
+          },
+          addWalletFunc: _addWallet,
+          joinWalletFunc: _joinWallet,
+          removeWalletFunc: _removeWallet,
+        ),
+        endDrawer: AccountDrawer(
+          user: widget.user,
+          deleteFunc: _removeAcountInfo,
+        ),);
   }
 }
