@@ -4,7 +4,7 @@ enum HistoryCategory {
   food,
   dailyUsed,
   hobby,
-  entertaiment,
+  entertainment,
   transportation,
   beauty,
   medical,
@@ -28,7 +28,7 @@ extension HistoryCategoryToJapaneseNameExtension on HistoryCategory {
         return '日用品';
       case HistoryCategory.hobby:
         return '趣味・娯楽';
-      case HistoryCategory.entertaiment:
+      case HistoryCategory.entertainment:
         return '交際費';
       case HistoryCategory.transportation:
         return '交通費';
@@ -67,7 +67,7 @@ extension HistoryCategoryToIconExtension on HistoryCategory {
         return Icons.shopping_basket;
       case HistoryCategory.hobby:
         return Icons.sports_esports;
-      case HistoryCategory.entertaiment:
+      case HistoryCategory.entertainment:
         return Icons.attractions;
       case HistoryCategory.transportation:
         return Icons.directions_bus;

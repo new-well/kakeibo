@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-import 'package:kakeibo/history_category.dart';
+import 'package:kakeibo/model/history_category.dart';
 
 class HistoryList extends StatelessWidget {
   const HistoryList(

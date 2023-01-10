@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:kakeibo/history_category.dart';
 import 'package:kakeibo/history.dart';
+import 'package:kakeibo/model/history_category.dart';
 
 class HistoryInputDialog extends StatefulWidget {
   const HistoryInputDialog({Key? key, required this.walletKey})

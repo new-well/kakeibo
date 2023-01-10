@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:kakeibo/start_page.dart';
+import 'package:flutter/material.dart';
+import 'package:kakeibo/pages/top_page.dart';
 
-import 'package:kakeibo/firebase_options.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: const StartPage(),
+      home: const TopPage(),
       debugShowCheckedModeBanner: false,
     );
   }
