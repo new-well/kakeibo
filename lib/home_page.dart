@@ -6,7 +6,6 @@
 // import 'package:kakeibo/history_input_dialog.dart';
 // import 'package:kakeibo/history_list.dart';
 // import 'package:kakeibo/signin_page.dart';
-// import 'package:kakeibo/total_amount_displayer.dart';
 // import 'package:kakeibo/user.dart';
 // import 'package:kakeibo/wallet.dart';
 // import 'package:kakeibo/wallet_drawer.dart';

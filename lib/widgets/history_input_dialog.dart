@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kakeibo/history.dart';
+import 'package:kakeibo/model/history.dart';
 import 'package:kakeibo/model/history_category.dart';
 
 class HistoryInputDialog extends StatefulWidget {
-  const HistoryInputDialog({Key? key, required this.walletKey})
-      : super(key: key);
-
-  final String walletKey;
+  const HistoryInputDialog({Key? key}) : super(key: key);
 
   @override
   State<HistoryInputDialog> createState() => _HistoryInputDialogState();
@@ -19,14 +16,7 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
   final _amountEditingController = TextEditingController();
   final _nonFocusNode = FocusNode();
   final _amountFocusNode = FocusNode();
-  final _amoutFormKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _nameEditingController.dispose();
-    _amountEditingController.dispose();
-    super.dispose();
-  }
+  final _amountFormKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +27,7 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
         child: AlertDialog(
           title: const Text('利用した金額を入力'),
           content: Form(
-            key: _amoutFormKey,
+            key: _amountFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -46,7 +36,6 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                   value: dropdownValue,
                   hint: const Text('カテゴリ'),
                   icon: const Icon(Icons.expand_more),
-                  elevation: 8,
                   onChanged: (String? newValue) {
                     setState(() {
                       dropdownValue = newValue!;
@@ -73,6 +62,12 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                   textInputAction: TextInputAction.next,
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_amountFocusNode);
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '支出の名前を入力してください。';
+                    }
+                    return null;
                   },
                 ),
                 TextFormField(
@@ -102,8 +97,8 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
             ),
             TextButton(
               onPressed: () {
-                if (_amoutFormKey.currentState!.validate()) {
-                  String? name = _nameEditingController.text;
+                if (_amountFormKey.currentState!.validate()) {
+                  String name = _nameEditingController.text;
                   int amount = int.parse(_amountEditingController.text);
                   Navigator.pop<History>(
                       context,
@@ -111,7 +106,8 @@ class _HistoryInputDialogState extends State<HistoryInputDialog> {
                         category: dropdownValue!,
                         name: name,
                         amount: amount,
-                        walletKey: widget.walletKey,
+                        walletKey: 'aaaa',
+                        createdAt: DateTime.now(),
                       ));
                 }
               },
